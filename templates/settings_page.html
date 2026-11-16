@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Home · Settings</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.settings-page{max-width:1100px;margin:0 auto;padding:28px 22px 60px}.settings-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.settings-top h1{margin:0;font-size:28px}.settings-top p{color:var(--muted);margin:7px 0 0}.settings-back{display:inline-flex;padding:10px 14px;border-radius:12px;background:#eef0ff;color:#5146bd;text-decoration:none;font-weight:700}.settings-page-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.settings-page-grid .panel{padding:22px}.settings-page-grid .wide{grid-column:1/-1}.settings-page form{display:grid;gap:13px}.settings-page label{display:grid;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}.settings-page input,.settings-page select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}.settings-page .form-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.settings-toast{position:fixed;right:20px;top:20px;background:#172554;color:white;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(-8px);transition:.2s;pointer-events:none}.settings-toast.show{opacity:1;transform:none}@media(max-width:700px){.settings-page-grid{grid-template-columns:1fr}.settings-page-grid .wide{grid-column:auto}.settings-top{align-items:flex-start;flex-direction:column}.settings-page .form-two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="settings-page">
+<header class="settings-top"><div><h1>Home settings</h1><p>Configure your home, device profiles, room comfort targets and operating mode.</p></div><a class="settings-back" href="/">← Back to dashboard</a></header>
+<div class="settings-page-grid">
+<section class="panel"><div class="panel-heading"><div><h3>General preferences</h3><p class="muted">Home identity and operating behavior.</p></div></div>
+<form id="homeSettingsForm"><label>Home name<input id="settingsHomeName" maxlength="60" required></label><label>Operating mode<select id="settingsMode"><option value="automatic">Automatic — run enabled rules</option><option value="manual">Manual — pause automatic rules</option></select></label><button class="btn btn-primary">Save preferences</button></form>
+</section>
+<section class="panel"><div class="panel-heading"><div><h3>Device configuration</h3><p class="muted">Rename devices, move rooms or adjust rated power.</p></div></div>
+<form id="deviceConfigForm"><label>Device<select id="configDevice"></select></label><label>Display name<input id="configDeviceName" maxlength="60" required></label><div class="form-two"><label>Room<input id="configDeviceRoom" maxlength="40" required></label><label>Rated power (W)<input id="configDeviceWatts" type="number" min="0" max="5000" step="0.1" required></label></div><button class="btn btn-primary">Save device</button></form>
+</section>
+<section class="panel wide"><div class="panel-heading"><div><h3>Room comfort settings</h3><p class="muted">Set target temperature, humidity and notes for each room.</p></div></div>
+<form id="roomConfigForm"><label>Room<select id="configRoom"></select></label><label>Room display name<input id="configRoomName" maxlength="40" required></label><div class="form-two"><label>Target temperature (°C)<input id="configRoomTemp" type="number" min="10" max="35" step="0.5" value="22"></label><label>Target humidity (%)<input id="configRoomHumidity" type="number" min="20" max="80" step="1" value="45"></label></div><label>Notes<input id="configRoomNotes" maxlength="200" placeholder="e.g. Keep comfortable for reading"></label><button class="btn btn-primary">Save room settings</button></form>
+</section>
+</div></main><div class="settings-toast" id="settingsToast" role="status" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+</body></html>

@@ -1,0 +1,56 @@
+classDiagram
+  class Dashboard
+  class HomeFacade
+  class DeviceManager
+  class Device
+  class LightDevice
+  class FanDevice
+  class LegacyDeviceAdapter
+  class EnergyMonitoringDecorator
+  class CommandInvoker
+  class TurnOnCommand
+  class TurnOffCommand
+  class MotionSensor
+  class AutomationEngine
+  class AutomationRuleBuilder
+  class NotificationService
+  class HomeConfig
+  Dashboard --> HomeFacade
+  HomeFacade --> DeviceManager
+  DeviceManager o-- Device
+  Device <|-- LightDevice
+  Device <|-- FanDevice
+  Device <|-- LegacyDeviceAdapter
+  EnergyMonitoringDecorator o-- Device
+  HomeFacade --> CommandInvoker
+  CommandInvoker --> TurnOnCommand
+  CommandInvoker --> TurnOffCommand
+  MotionSensor --> AutomationEngine
+  MotionSensor --> NotificationService
+  AutomationEngine --> AutomationRuleBuilder
+  HomeConfig ..> Dashboard : configuration
+  class SettingsController
+  class RoomPreferences
+  class UndoCommandRecord
+  class SensorTriggerSimulator
+  Dashboard --> SettingsController : configure home and devices
+  SettingsController --> RoomPreferences : persist comfort targets
+  Dashboard --> UndoCommandRecord : undo last power command
+  SensorTriggerSimulator --> AutomationEngine : motion / door / threshold events
+
+%% Data-driven extensions
+class AutomationRule
+class Condition
+class EnergyThresholdCondition
+class TimeWindowCondition
+class AnomalyCondition
+class CommandAuditRepository
+class TelemetryRepository
+class CommandAudit
+class EnergySample
+Condition <|-- EnergyThresholdCondition
+Condition <|-- TimeWindowCondition
+Condition <|-- AnomalyCondition
+CommandAuditRepository --> CommandAudit : persists
+TelemetryRepository --> EnergySample : persists
+AutomationRule --> Condition : evaluates

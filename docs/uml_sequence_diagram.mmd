@@ -1,0 +1,44 @@
+sequenceDiagram
+  actor User
+  participant UI as Dashboard UI
+  participant API as Flask API
+  participant DB as SQLite
+  participant Facade as HomeFacade
+  participant Cmd as CommandInvoker
+  participant Worker as Simulation Worker
+  participant Strategy as Condition Strategy
+  participant Audit as CommandAuditRepository
+
+  User->>UI: Toggle device ON
+  UI->>API: POST /api/device/{id}/power
+  API->>DB: Validate device and read state
+  API->>Facade: turn_on_device(id)
+  Facade->>Cmd: execute TurnOnCommand
+  Cmd-->>Facade: command completed
+  API->>DB: Persist state and activity notification
+  API->>Audit: Add timestamped command audit record
+  API-->>UI: Updated device + dashboard state
+  UI-->>User: Refresh device card
+
+  User->>UI: Select Manual mode
+  UI->>API: POST /api/mode
+  API->>DB: Persist operating_mode=manual
+  User->>UI: Simulate door-open trigger
+  UI->>API: POST /api/trigger
+  API->>DB: Read mode and log event
+  Note over API,DB: Manual mode records events but skips automatic rule execution
+  User->>UI: Switch room devices ON
+  UI->>API: POST /api/rooms/power
+  API->>DB: Save device states and undo history
+  User->>UI: Undo last command
+  UI->>API: POST /api/undo
+  API->>DB: Restore previous device power state
+
+  loop Every 10 seconds
+    Worker->>DB: Read device state and elapsed ON time
+    Worker->>Strategy: Evaluate energy / time / anomaly condition
+    Strategy-->>Worker: Condition result
+    Worker->>API: Evaluate matching enabled rules
+    API->>DB: Persist resulting device state
+    API->>Audit: Persist command audit record
+  end

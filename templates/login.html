@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · SmartHome</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body class="login-body"><main class="login-card">
+<div class="brand-mark">⌂</div><p class="eyebrow">SMART HOME CONTROL</p><h1>Welcome home</h1>
+<p class="muted">Sign in to manage your simulated smart home.</p>
+{% with messages = get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="alert">{{ message }}</div>{% endfor %}{% endwith %}
+<form method="post" class="login-form"><label>Username<input name="username" required autocomplete="username" placeholder="admin"></label>
+<label>Password<input name="password" type="password" required autocomplete="current-password" placeholder="Password"></label>
+<button class="btn btn-primary full">Sign in</button></form>
+<p class="login-hint">Demo credentials: <b>admin</b> / <b>home1234</b></p></main></body></html>

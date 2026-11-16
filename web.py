@@ -1,0 +1,6 @@
+"""Compatibility launcher. Run `python web.py` or `python app.py`."""
+from app import app
+
+if __name__ == "__main__":
+    print("Smart Home dashboard: http://127.0.0.1:5000")
+    app.run(host="127.0.0.1", port=5000, debug=False)

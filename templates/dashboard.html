@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartHome · Dashboard</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="/"><span class="brand-mark">⌂</span><span>smart<span class="brand-light">home</span><small>CONTROL CENTER</small></span></a>
+<div class="side-label">WORKSPACE</div>
+<nav class="side-nav">
+<a class="nav-link active" href="#overview" data-section="overview"><span>▦</span> Overview</a>
+<a class="nav-link" href="#rooms" data-section="rooms"><span>⌂</span> Rooms & devices</a>
+<a class="nav-link" href="#automation" data-section="automation"><span>⌘</span> Automations</a>
+<a class="nav-link" href="#energy" data-section="energy"><span>⌁</span> Energy insights</a>
+<a class="nav-link" href="#activity" data-section="activity"><span>◷</span> Activity</a>
+<a class="nav-link" href="/settings"><span>⚙</span> Settings</a>
+</nav>
+<div class="sidebar-bottom"><div class="online-dot"></div><div><b>Simulation online</b><small>All systems operational</small></div></div>
+</aside>
+<main class="main-area">
+<header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div><p class="eyebrow">HOME OVERVIEW</p><h1 id="homeTitle">My Smart Home</h1></div>
+<div class="top-actions"><label class="mode-control">Mode <select id="operatingMode" aria-label="Operating mode"><option value="automatic">Automatic</option><option value="manual">Manual</option></select></label><button class="btn btn-outline" id="undoButton" disabled>↶ Undo last command</button><button class="btn btn-quiet" id="notificationButton">Notifications <span id="unreadCount">0</span></button><span class="live-pill"><i></i> Live simulation</span><form method="post" action="/logout"><button class="btn btn-quiet">Sign out ↗</button></form></div></header>
+<div class="content">
+<section id="overview" class="section-block">
+<div class="welcome-row"><div><h2>Your home at a glance</h2><p class="muted">Monitor and control your connected spaces.</p><div class="mode-status automatic" id="modeStatus"><b>Automatic mode</b><span>Enabled rules can respond to sensor events.</span></div></div><div class="date-label" id="todayLabel"></div></div>
+<div class="stats-grid">
+<article class="stat-card"><div class="stat-top"><span>Total devices</span><span class="stat-icon violet">▦</span></div><strong id="totalDevices">—</strong><small>Across <b id="roomCount">—</b> rooms</small></article>
+<article class="stat-card"><div class="stat-top"><span>Devices active</span><span class="stat-icon green">◉</span></div><strong id="activeDevices">—</strong><small><b id="inactiveDevices">—</b> currently inactive</small></article>
+<article class="stat-card"><div class="stat-top"><span>Current power</span><span class="stat-icon amber">ϟ</span></div><strong><span id="activeWatts">—</span><em> W</em></strong><small>Estimated live load</small></article>
+<article class="stat-card"><div class="stat-top"><span>Active automations</span><span class="stat-icon blue">⌘</span></div><strong id="activeRules">—</strong><small>Rules enabled</small></article>
+</div>
+<div class="section-heading"><div><h2>Quick scenes</h2><p class="muted">Set the mood across your home.</p></div></div>
+<div class="scene-grid" id="sceneGrid"></div>
+</section>
+<section id="rooms" class="section-block">
+<div class="section-heading"><div><h2>Rooms & devices</h2><p class="muted">Control devices and adjust their settings.</p></div>
+<div class="room-tools"><input id="deviceSearch" class="search-input" placeholder="Search devices…" aria-label="Search devices"><select id="roomFilter" class="select-input"><option value="all">All rooms</option></select></div></div>
+<div id="roomOverview" class="room-overview" aria-label="Room summary"></div><div id="roomGroups" class="room-groups"></div><div class="section-heading sensor-heading"><div><h2>Room environment</h2><p class="muted">Simulated temperature and humidity readings.</p></div></div><div id="sensorGrid" class="sensor-grid"></div>
+</section>
+<section id="automation" class="section-block">
+<div class="section-heading"><div><h2>Automation rules</h2><p class="muted">Let your home respond automatically.</p></div></div>
+<div class="automation-layout"><div class="panel rule-builder"><div class="panel-heading"><div><h3>Create an automation</h3><p class="muted">Choose a trigger and an action.</p></div><span class="panel-icon">✳</span></div>
+<form id="ruleForm" class="rule-form"><label>Rule name<input name="name" required maxlength="70" placeholder="e.g. Motion turns on kitchen light"></label>
+<div class="form-two"><label>When<select name="trigger_type"><option value="motion">Motion is detected</option><option value="door_open">Door opens</option><option value="temperature_high">Temperature threshold is exceeded</option><option value="humidity_high">Humidity threshold is exceeded</option><option value="time">At a scheduled time</option><option value="energy_threshold">Daily energy budget reached</option><option value="time_window">Within a time window</option><option value="anomaly">Device left ON too long</option></select></label>
+<label>At time<input name="schedule_time" type="time" value="19:00" id="scheduleTime"></label></div>
+<div class="form-two"><label>Energy threshold (kWh)<input name="threshold" type="number" min="0.01" max="10000" step="0.01" value="1.00"></label><label>Maximum ON duration (seconds)<input name="duration_seconds" type="number" min="60" max="604800" step="60" value="3600"></label></div>
+<div class="form-two"><label>Window starts<input name="window_start" type="time" value="23:00"></label><label>Window ends<input name="window_end" type="time" value="06:00"></label></div>
+<div class="form-two"><label>Device<select name="device_id" id="ruleDevice"></select></label>
+<label>Action<select name="action"><option value="on">Turn ON</option><option value="off">Turn OFF</option><option value="toggle">Toggle device</option></select></label></div>
+<button class="btn btn-primary">＋ Create rule</button><div class="preset-row"><button type="button" class="btn btn-outline" data-preset="night_mode">＋ Night Mode preset</button><button type="button" class="btn btn-outline" data-preset="motion_security">＋ Motion Security preset</button></div><div class="trigger-demo"><span>Test a sensor trigger:</span><button type="button" class="mini-btn" data-trigger="motion">Motion</button><button type="button" class="mini-btn" data-trigger="door_open">Door</button><button type="button" class="mini-btn" data-trigger="temperature_high">Temperature</button><button type="button" class="mini-btn" data-trigger="humidity_high">Humidity</button><button type="button" class="mini-btn" data-trigger="energy_threshold">Energy budget</button><button type="button" class="mini-btn" data-trigger="time_window">Time window</button><button type="button" class="mini-btn" data-trigger="anomaly">Anomaly</button></div><p class="form-note">Manual mode pauses automatic rule execution. Use these buttons to simulate sensor events.</p></form></div>
+<div class="panel"><div class="panel-heading"><div><h3>Your automations</h3><p class="muted">Enable, disable or remove rules.</p></div><span class="count-chip" id="ruleCount">0</span></div><div id="ruleList" class="rule-list"></div></div></div>
+</section>
+<section id="energy" class="section-block">
+<div class="section-heading"><div><h2>Energy insights</h2><p class="muted">Estimated consumption from simulated device power ratings.</p></div><span class="simulation-note">SIMULATED DATA</span></div>
+<div class="energy-kpis"><article class="stat-card"><span>Estimated energy today</span><strong id="todayKwh">0.000</strong><small>kWh · simulated</small></article></div><div class="energy-layout"><div class="panel energy-panel"><div class="panel-heading"><div><h3>Live power usage</h3><p class="muted">Recent samples · watts</p></div><div class="energy-number"><strong id="hourlyKwh">0.00</strong><small>kWh / hour</small></div></div><canvas id="energyChart" height="210"></canvas></div>
+<div class="panel"><div class="panel-heading"><div><h3>Energy consumption breakdown</h3><p class="muted">Current estimated load by device</p></div></div><canvas id="energyBreakdownChart" height="220"></canvas><div id="energyBreakdown" class="breakdown-list"></div></div></div>
+<div class="energy-history-grid"><div class="panel"><div class="panel-heading"><div><h3>Daily energy history</h3><p class="muted">Estimated kWh by day</p></div><select id="energyRange" class="select-input" aria-label="Energy history range"><option value="7">7 days</option><option value="30">30 days</option></select></div><div id="dailyEnergyHistory" class="daily-history"></div></div><div class="panel"><div class="panel-heading"><div><h3>Device energy history</h3><p class="muted">Last 7 days · estimated kWh</p></div></div><div id="deviceEnergyHistory" class="breakdown-list"></div></div></div><div class="disclaimer">ⓘ Energy values are estimates based on configured wattage and simulated ON/OFF states. They are not meter readings.</div>
+</section>
+<section id="activity" class="section-block">
+<div class="section-heading"><div><h2>Recent activity</h2><p class="muted">A timeline of events across your home.</p></div><button class="btn btn-outline" id="refreshBtn">↻ Refresh</button></div>
+<div class="panel activity-chart-panel"><div class="panel-heading"><div><h3>System activity timeline</h3><p class="muted">Events per minute · recent 10 minutes</p></div></div><canvas id="activityTimelineChart" height="150"></canvas></div><div class="panel"><div id="activityList" class="activity-list"></div></div>
+<details class="panel command-history-panel" id="commandHistoryPanel"><summary><b>Command audit history</b><span class="muted"> View recent commands and export records</span></summary><div class="command-export-actions"><a class="btn btn-outline" href="/api/commands/export?format=csv">Export CSV</a><a class="btn btn-outline" href="/api/commands/export?format=json">Export JSON</a></div><div id="commandHistoryList" class="command-history-list"></div></details>
+</section>
+<section id="settings" class="section-block">
+<div class="section-heading"><div><h2>Home settings</h2><p class="muted">Configure your home, devices and room preferences.</p></div></div>
+<div class="settings-grid">
+<div class="panel"><div class="panel-heading"><div><h3>General preferences</h3><p class="muted">Home identity and operating behavior.</p></div></div>
+<form id="homeSettingsForm" class="rule-form"><label>Home name<input name="home_name" id="settingsHomeName" maxlength="60" required></label><label>Operating mode<select name="mode" id="settingsMode"><option value="automatic">Automatic — run enabled rules</option><option value="manual">Manual — pause automatic rules</option></select></label><button class="btn btn-primary">Save preferences</button></form>
+<div class="mode-explainer"><b>Manual mode</b><p>Sensor events are recorded, but automations do not operate devices. You retain full control from device cards and room controls.</p><b>Automatic mode</b><p>Enabled motion, door, temperature, humidity and scheduled rules can control devices.</p></div></div>
+<div class="panel"><div class="panel-heading"><div><h3>Device configuration</h3><p class="muted">Rename devices, move rooms or adjust rated power.</p></div></div><form id="deviceConfigForm" class="rule-form"><label>Device<select id="configDevice" name="device_id"></select></label><label>Display name<input id="configDeviceName" maxlength="60" required></label><div class="form-two"><label>Room<input id="configDeviceRoom" maxlength="40" required></label><label>Rated power (W)<input id="configDeviceWatts" type="number" min="0" max="5000" step="0.1" required></label></div><button class="btn btn-primary">Save device</button></form></div>
+<div class="panel"><div class="panel-heading"><div><h3>Room preferences</h3><p class="muted">Rename a room and set comfort targets.</p></div></div><form id="roomConfigForm" class="rule-form"><label>Room<select id="configRoom" name="room"></select></label><label>Room name<input id="configRoomName" maxlength="40" required></label><div class="form-two"><label>Target temperature (°C)<input id="configRoomTemp" type="number" min="10" max="35" step="0.5" value="22"></label><label>Target humidity (%)<input id="configRoomHumidity" type="number" min="20" max="80" step="1" value="45"></label></div><label>Notes<input id="configRoomNotes" maxlength="200" placeholder="e.g. Keep comfortable for reading"></label><button class="btn btn-primary">Save room settings</button></form></div>
+</div></section>
+<footer class="footer"><span>SmartHome Control Center</span><span>Software simulation · No physical hardware connected</span></footer>
+</div></main></div>
+<div id="notificationPanel" class="notification-panel" hidden><div class="panel-heading"><h3>Notifications</h3><button class="mini-btn" id="markAllRead">Mark all read</button></div><div id="notificationList"></div></div><div id="toast" class="toast" role="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body></html>
